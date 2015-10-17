@@ -111,6 +111,34 @@ read_request_line(struct HTTPRequest *req, FILE *in){
   req->protocol_minor_version = atoi(p); //atoi() parse string to int.
 }
 
+static struct HTTPHeaderField*
+read_header_field(FILE *in){
+  struct HTTPHeaderField *h;
+  char buf[LINE_BUF_SIZE];
+  char *p;
+
+  if(!fgets(buf, LINE_BUF_SIZE, in))
+    log_exit("failed to read request header field: %s", strerror(errno));
+  if(buf[0] == '\n' || (strcmp(buf, "\r\n") == 0))
+    return NULL;
+
+  // extract name.
+  p = strchr(buf, ':');
+  if (!p)
+    log_exit("parse error on request header field: %s", buf);
+  *p++ = '\0';
+  h = xmalloc(sizeof(struct HTTPHeaderField));
+  h->name = xmalloc(p - buf);
+  strcpy(h->name, buf);
+
+  // extract value.
+  p += strspn(p, " \t"); //if header string containe extra ' ' or '\t'(tab), ahead pointer to its size for ignore them.
+  h->value = xmalloc(strlen(p) + 1);
+  strcpy(h->value, p);
+
+  return h;
+}
+
 static long
 content_length(struct HTTPRequest *req){
   char *val;
