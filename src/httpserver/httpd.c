@@ -82,6 +82,35 @@ read_request(FILE *in){
   return req;
 }
 
+static void
+read_request_line(struct HTTPRequest *req, FILE *in){
+  char buf[LINE_BUF_SIZE];
+  char *push, *p;
+
+  if(!fgets(buf, LINE_BUF_SIZE, in)) // fgets() read one line, until /n. get requestLine.
+    log_exit("no request line");
+  p = strchr(buf, ' ');
+  if(!p)
+    log_exit("parse error on request line (1): %s", buf);
+  *p++ = '\0';
+  req->method = xmalloc(p - buf);
+  strcpy(req->method, buf); // strcpy() copy string, start from *buf to next '\0'(the mark for end of string).
+  upcase(req->method);
+
+  path = p;
+  p = strchr(path, ' ');
+  if (!p)
+    log_exit("parse error on request line (2): %s", buf);
+  *p++ = '\0';
+  req->path = xmalloc(p - path);
+  strcpy(req->path, path);
+
+  if(strncasecmp(p, "HTTP/1.", strlen("HTTP/1.")) != 0)
+    log_exit("parse error on request line (3): %s", buf);
+  p += strlen("HTTP/1.");
+  req->protocol_minor_version = atoi(p); //atoi() parse string to number(int ,etc).
+}
+
 /* *cahr and *struct should be freeed. */
 static void
 free_request(struct HTTPRequest *req){
