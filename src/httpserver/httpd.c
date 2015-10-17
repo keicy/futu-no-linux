@@ -108,7 +108,32 @@ read_request_line(struct HTTPRequest *req, FILE *in){
   if(strncasecmp(p, "HTTP/1.", strlen("HTTP/1.")) != 0)
     log_exit("parse error on request line (3): %s", buf);
   p += strlen("HTTP/1.");
-  req->protocol_minor_version = atoi(p); //atoi() parse string to number(int ,etc).
+  req->protocol_minor_version = atoi(p); //atoi() parse string to int.
+}
+
+static long
+content_length(struct HTTPRequest *req){
+  char *val;
+  long len;
+
+  // if httpRequest has a body it also should have a header "Content-Length". 
+  var = lookup_header_field_value(req, "Content-Length");
+  if(!val)
+    return 0;
+  len = atol(val);
+  if(len < 0)
+    log_exit("negative Content-Length value");
+  return len;
+}
+
+static char*
+lookup_header_field_value(struct HTTPRequest *req, char *name){
+  struct HTTPHeaderField *h;
+  for(h = req->header; h; h = h->next){
+    if(strcasecmp(h->name, name) == 0)
+      return h->value;
+  }
+  return NULL;
 }
 
 /* *cahr and *struct should be freeed. */
