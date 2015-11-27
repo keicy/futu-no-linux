@@ -27,6 +27,11 @@ struct HTTPHeaderField {
     struct HTTPHeaderField *next;
 };
 
+struct FileInfo {
+	char *path;
+	long size;
+	int ok;
+}
 
 /****** Functions ******************************************************/ 
 
