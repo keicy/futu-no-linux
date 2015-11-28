@@ -188,6 +188,10 @@ free_request(struct HTTPRequest *req){
   free(req);
 }
 
+static void
+free_fileinfo (FileInfo *info) {
+}
+
 /****** utils *********************************************************/
 
 /**** trap signal ****/
