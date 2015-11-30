@@ -190,6 +190,8 @@ free_request(struct HTTPRequest *req){
 
 static void
 free_fileinfo (FileInfo *info) {
+	free(info->path);
+	free(info);
 }
 
 /****** utils *********************************************************/
