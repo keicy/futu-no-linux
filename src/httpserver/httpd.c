@@ -196,7 +196,8 @@ free_fileinfo(FileInfo *info){
 
 static struct FileInfo*
 get_fileinfo(char *docroot, cahr *urlpath){
-	
+	struct FileInfo *info;
+	struct stat st;
 }
 
 
